@@ -12,6 +12,8 @@ public class UserViewPanel extends JFrame {
     private final JList<String> newsFeedListBox=new JList<>();
     private final DefaultListModel<String> followingListModel = new DefaultListModel<>();
     private final DefaultListModel<String> newsFeedListModel = new DefaultListModel<>();
+    private final JTextArea creationTimeTextArea = new JTextArea();
+    private final JTextArea lastUpdatedTimeTextArea = new JTextArea();
     private final JButton postTweetButton = new JButton("Post New Tweet");
     private final JButton followUserButton = new JButton("Follow User");
     private final Comparator<Tweet> chronologicalOrder = Comparator.comparingInt(Tweet::getChronology);
@@ -23,6 +25,8 @@ public class UserViewPanel extends JFrame {
         viewingAsUser = user;
         viewingAsUser.setMyPage(this);
         render();
+        creationTimeTextArea.setText(":User Creation Time:\n    "+Long.toString(user.getCreationTime()));
+        creationTimeTextArea.setRows(2);
         awaitInput();
     }
 
@@ -33,6 +37,9 @@ public class UserViewPanel extends JFrame {
         for(Tweet tweet: viewingAsUser.getNewsFeed()){
             newsFeedListModel.add(1,tweet.getTweet());
         }
+        viewingAsUser.setLastUpdatedTime();
+        lastUpdatedTimeTextArea.setText(":Last Updated Time:\n   "+Long.toString(viewingAsUser.getLastUpdatedTime()));
+        lastUpdatedTimeTextArea.setRows(2);
     }
 
     private void showSubjects(){
@@ -119,6 +126,10 @@ public class UserViewPanel extends JFrame {
         newsFeedListBox.setModel(newsFeedListModel);
         bodyOfBottomPanel.add(newsFeedScrollPane);
         bottomPanel.add(bodyOfBottomPanel,BorderLayout.CENTER);
+        JPanel bottomOfBottomPanel =new JPanel();
+        bottomOfBottomPanel.add(creationTimeTextArea);
+        bottomOfBottomPanel.add(lastUpdatedTimeTextArea);
+        bottomPanel.add(bottomOfBottomPanel,BorderLayout.SOUTH);
         refreshNewsFeed();
     }
 }

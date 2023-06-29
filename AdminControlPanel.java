@@ -19,12 +19,15 @@ public class AdminControlPanel extends JFrame {
     private final JButton getNumOfGroupsButton = new JButton("Get Number of Groups");
     private final JButton getNumOfTweetsButton = new JButton("Get Number of Tweets");
     private final JButton getPercentageOfPositiveTweetsButton = new JButton("Get Percentage of Positive Tweets");
+    private final JButton checkForInvalidUniqueIDsButton = new JButton("Check for Invalid IDs");
+    private final JButton getLastUpdatedUserButton = new JButton("Get Last Updated User");
     private final TwitterTreeNode root = new TwitterTreeNode("Root", new UserGroup("Root"));
     private final DefaultTreeModel userTreeModel = new DefaultTreeModel(root);
     private final JTree userTree = new JTree(userTreeModel);
     private final CustomTreeCellRenderer renderer = new CustomTreeCellRenderer(groupIDs, userIDs);
     private TwitterComponentVisitor visitor;
     private static AdminControlPanel instance;
+    private JScrollPane treeScrollPane =new JScrollPane(userTree);
 
     public static AdminControlPanel getInstance() { //setting up Singleton Pattern
         if (instance == null) {
@@ -190,6 +193,24 @@ public class AdminControlPanel extends JFrame {
             }
             analysisLabel.setText("Total Percentage of Positive Tweets = "+output+"%");
         });
+
+        checkForInvalidUniqueIDsButton.addActionListener(e -> {
+            visitor = new CheckForInvalidIDsVisitor();
+            root.getType().accept(visitor);
+            if(((CheckForInvalidIDsVisitor)visitor).areAllValid()){
+                analysisLabel.setText("All IDs are Valid");
+            }
+            else{
+                analysisLabel.setText("Invalid ID(s) Found");
+            }
+        });
+
+        getLastUpdatedUserButton.addActionListener(e -> {
+            visitor = new GetLastUpdatedUserVisitor();
+            root.getType().accept(visitor);
+            String output = (((GetLastUpdatedUserVisitor)visitor).getLastUpdatedUser());
+            analysisLabel.setText("Most Recently Updated User: "+output);
+        });
     }
 
     //handle requests from users to follow other users
@@ -232,8 +253,7 @@ public class AdminControlPanel extends JFrame {
         leftPanel.setPreferredSize(new Dimension(160,160));
         mainPanel.add(leftPanel, BorderLayout.WEST);
         userTree.setCellRenderer(renderer);
-        userTree.setPreferredSize(new Dimension(156,156));
-        leftPanel.add(userTree, BorderLayout.CENTER);
+        leftPanel.add(treeScrollPane, BorderLayout.CENTER);
 
         // Create the right panel
         JPanel rightPanel = new JPanel();
@@ -259,13 +279,15 @@ public class AdminControlPanel extends JFrame {
         centerPanel.add(analysisLabel);
         // Create the bottom panel inside the right panel
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(2,2,5,5));
+        bottomPanel.setLayout(new GridLayout(3,2,5,5));
         bottomPanel.setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
         bottomPanel.setPreferredSize(new Dimension(100,180));
         bottomPanel.add(getNumOfUsersButton);
         bottomPanel.add(getNumOfGroupsButton);
         bottomPanel.add(getNumOfTweetsButton);
         bottomPanel.add(getPercentageOfPositiveTweetsButton);
+        bottomPanel.add(checkForInvalidUniqueIDsButton);
+        bottomPanel.add(getLastUpdatedUserButton);
         rightPanel.add(bottomPanel, BorderLayout.SOUTH);
     }
 }
