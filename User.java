@@ -3,6 +3,8 @@ import java.util.List;
 
 public class User implements Observer, Subject, TwitterComponent {
     private final String uniqueID;
+    private final long creationTime;
+    private long lastUpdatedTime;
     private final List<Observer> followers = new ArrayList<>();//people who follow this user
     private final List<User> usersImFollowing = new ArrayList<>();//people this user follows
     private final List<Tweet> newsFeed = new ArrayList<>();//holds tweets from this user and everyone this user follows
@@ -11,6 +13,7 @@ public class User implements Observer, Subject, TwitterComponent {
 
     public User(String uniqueIDPar) { //Constructor
         uniqueID = uniqueIDPar;//Admin should make sure ID is unique before User is constructed
+        creationTime=System.currentTimeMillis();
     }
 
     @Override
@@ -42,6 +45,19 @@ public class User implements Observer, Subject, TwitterComponent {
     @Override
     public void accept(TwitterComponentVisitor visitor) {
         visitor.visitUser(this);
+    }
+
+    @Override
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public long getLastUpdatedTime() {
+        return lastUpdatedTime;
+    }
+
+    public void setLastUpdatedTime(){
+        lastUpdatedTime=System.currentTimeMillis();
     }
 
     public void follow(User newSubject){
